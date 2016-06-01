@@ -10,6 +10,3 @@ pyxdg==0.25
 six==1.10.0
 speedtest-cli==0.3.4
 stdeb==0.8.5
-team==1.0
-websockets==3.1
-youtube-dl==2016.5.16
