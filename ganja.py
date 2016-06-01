@@ -1,9 +1,8 @@
-import discord
-import asyncio
-import shelve
-import re
 import random
+import re
+import shelve
 
+import discord
 
 client = discord.Client()
 commands = shelve.open('commands')
@@ -34,7 +33,7 @@ async def on_message(message):
             mess = mess.replace('gif ', '').replace(' \"', '---\"')
             key_val = mess.split('---')
             if len(key_val) < 2:
-                await client.send_message(message.channel, 'usage: !ganja add gif \"_commandname_\" \"_site_\"')
+                await client.send_message(message.channel, 'usage: !ganja add gif \"commandname\" \"site or text\"')
             else:
                 key = key_val[0].replace('!', '').replace('\"', '')
                 key = '!'+key
@@ -45,7 +44,7 @@ async def on_message(message):
             mess = message.clean_content.replace('!ganja add quote ', '')
             mess = re.sub(r'@\S+\s', '', mess)
             if len(message.mentions) != 1:
-                await client.send_message(message.channel, 'usage: !ganja add quote _\\@person_ _quote_')
+                await client.send_message(message.channel, 'usage: !ganja add quote @person quote')
             else:
                 quotee, added = find_id(message.mentions[0].mention)
                 if quotee not in quotes:
@@ -54,9 +53,9 @@ async def on_message(message):
                 tmp.append(mess)
                 quotes[quotee] = tmp
                 await client.send_message(message.channel, ''+users[quotee]+' \"'+mess+'\" was added.')
-    elif message.content.startswith('!quote'):
+    elif message.content.startswith('!ganja quote'):
         if len(message.mentions) != 1:
-            await client.send_message(message.channel, 'usage: !ganja quote _\\@person_ _number (optional)_')
+            await client.send_message(message.channel, 'usage: !ganja quote @person number (optional)')
         else:
             quotee, added = find_id(message.mentions[0].mention)
             if added:
@@ -78,6 +77,24 @@ async def on_message(message):
                     if index == -1 or index >= len(quote_list):
                         index = random.randint(0, len(quote_list)-1)
                     await client.send_message(message.channel, ''+users[quotee]+'\t'+str(index)+': '+quote_list[index])
+    elif message.content.startswith('!ganja help'):
+        cmds = '```'
+        for command in commands:
+            cmds = cmds + ' \r\n' + command
+        cmds += '```'
+        response = ['Ganjabot feels very attacked but wants to learn, you can add gifs or messages with:',
+                    '```!ganja add gif \"commandname\" \"site or text\"```',
+                    'Ganjabot finds your quotes offensive, add quotes with:',
+                    '```!ganja add quote @person quote```',
+                    'View quotes with:',
+                    '```!ganja quote @person'
+                    '\r\n!ganja quote @person number'
+                    '\r\n!ganja quote @person list```',
+                    'List of added commands:',
+                    cmds
+                    ]
+        for res in response:
+            await client.send_message(message.channel, res)
     elif message.content in commands:
         response = commands[message.content]
         await client.send_message(message.channel, response)
