@@ -80,12 +80,12 @@ async def on_message(message):
     elif message.content.startswith('!ganja help'):
         cmds = '```'
         for command in commands:
-            cmds = cmds + ' \r\n' + command
+            cmds = cmds + command + ' \r\n'
         cmds += '```'
-        response = ['Ganjabot feels very attacked but wants to learn, you can add gifs or messages with:',
+        response = ['Ganjabot feels very attacked but wants to learn, you can add images or messages with:',
                     '```!ganja add gif \"commandname\" \"site or text\"```',
                     'Ganjabot finds your quotes offensive, add quotes with:',
-                    '```!ganja add quote @person quote```',
+                    '```!ganja add quote @person what you want to quote```',
                     'View quotes with:',
                     '```!ganja quote @person'
                     '\r\n!ganja quote @person number'
@@ -93,8 +93,10 @@ async def on_message(message):
                     'List of added commands:',
                     cmds
                     ]
+        query = ''
         for res in response:
-            await client.send_message(message.channel, res)
+            query += res + '\r\n'
+        await client.send_message(message.channel, query)
     elif message.content in commands:
         response = commands[message.content]
         await client.send_message(message.channel, response)
