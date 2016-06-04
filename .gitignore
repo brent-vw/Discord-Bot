@@ -1,2 +1,7 @@
+.apikeys
+champions
+commands
+quotes
+users
 __pycache__/
 .bak/

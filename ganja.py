@@ -14,8 +14,11 @@ client = discord.Client()
 commands = shelve.open('commands')
 quotes = shelve.open('quotes')
 users = shelve.open('users')
-token = 'MTg3NjYxNDgxNDA2NDk2NzY4.CjDU4A.HvPOBj4eRjfmjdwmX3vkKz4LwPg'
-dev_token = 'MTg4MjY3NDQ2MzUwNzc0Mjgy.CjRKNA.C8S_glH06Lvu8m7x9GkJD_JuMSU'
+with open('.apikeys') as keys:
+    data = json.load(keys)
+token = data['token']
+dev_token = data['dev_token']
+wolfram = data['wolfram_token']
 header = {'User-Agent': 'Mozilla/5.0',
           'Accept': 'text/html,application/json'}
 
@@ -52,8 +55,8 @@ async def on_message(message):
                 await client.send_message(message.channel, resp)
     elif mess.startswith('!wolfram'):
       await client.send_typing(message.channel)
-      wol = wolframalpha.Client('W9RQQ6-QVEPR5KRUH')
-      res = wol.query('\''+mess.replace('!wolfram ','')+'\'')
+      wol = wolframalpha.Client(wolfram)
+      res = wol.query('\'' + mess.replace('!wolfram ', '') + '\'')
       try:
         await client.send_message(message.channel, res.pods[1].img)
       except IndexError:
@@ -327,4 +330,4 @@ drama = [
     'http://i.imgur.com/jqr2gUM.gif'
 ]
 
-client.run(token)
+client.run(dev_token)

@@ -5,7 +5,10 @@ import time
 from datetime import date, timedelta
 from bans import create_image
 
-api_token = 'fb9d4030900b9ee6d8ba4ebf00f1a032'
+with open('.apikeys') as keys:
+    data = json.load(keys)
+api_token = data['open_league_token']
+riot_token = data['league_token']
 header = {'User-Agent': 'Mozilla/5.0',
           'Accept': 'text/html,application/json'}
 positions = {
@@ -90,11 +93,13 @@ def get_response(url):
 
 
 def get_champions_stats(summid):
-    return get_response('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/' + str(summid) + '/ranked?season=SEASON2016&api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+    return get_response('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/' + str(
+        summid) + '/ranked?season=SEASON2016&api_key=' + riot_token)
 
 
 def get_ranked_info(summid):
-    leagues = get_response('https://euw.api.pvp.net/api/lol/euw/v2.5/league/by-summoner/' + str(summid) +'?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+    leagues = get_response(
+        'https://euw.api.pvp.net/api/lol/euw/v2.5/league/by-summoner/' + str(summid) + '?api_key=' + riot_token)
     sum_div = list(filter(lambda summ: summ['playerOrTeamId'] == str(summid), leagues[str(summid)][0]['entries']))[0]
     division = sum_div['division']
     tier = leagues[str(summid)][0]['tier'].lower().capitalize()
@@ -158,7 +163,8 @@ def get_champions(keys=False):
         if champions['date'] != date.today():
             champions.clear()
             champions['date'] = date.today()
-            resp = get_response('https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?champData=image&api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+            resp = get_response(
+                'https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?champData=image&api_key=' + riot_token)
             champions['list'] = []
             champions['keys'] = []
             for x in resp['data'].values():
@@ -257,11 +263,14 @@ def find_match(args):
     if region == '':
         return '**' + args + '** was not recognized.'
     name = name.replace(' ', '%20')
-    summid = get_response('https://' + region + '.api.pvp.net/api/lol/' + region + '/v1.4/summoner/by-name/' + name + '?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+    summid = get_response(
+        'https://' + region + '.api.pvp.net/api/lol/' + region + '/v1.4/summoner/by-name/' + name + '?api_key=' + riot_token)
     for x in summid:
         id = summid[x]['id']
     try:
-        match = get_response('https://' + region + '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' + region.upper() + '1/' + str(id) + '?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+        match = get_response(
+            'https://' + region + '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' + region.upper() + '1/' + str(
+                id) + '?api_key=' + riot_token)
     except urllib.error.HTTPError:
         return 'Match for: ' + name.replace('%20', ' ') + ' on ' + region + ' could not be found.'
     game = LolGame(match, str(id), name)
