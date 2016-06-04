@@ -7,6 +7,7 @@ import asyncio
 import discord
 import sys
 import giphypop
+import wolframalpha
 from league import run_command
 
 client = discord.Client()
@@ -37,6 +38,7 @@ def find_id(member):
 async def on_message(message):
     mess = message.content
     if mess.startswith('!lol'):
+        await client.send_typing(message.channel)
         args = mess.replace('!lol ', '').replace(' ', '-', 1).split('-')
         if len(args) == 1:
             args.append('None')
@@ -48,11 +50,22 @@ async def on_message(message):
                 await client.send_file(message.channel, resp)
             else:
                 await client.send_message(message.channel, resp)
+    elif mess.startswith('!wolfram'):
+      await client.send_typing(message.channel)
+      wol = wolframalpha.Client('W9RQQ6-QVEPR5KRUH')
+      res = wol.query('\''+mess.replace('!wolfram ','')+'\'')
+      try:
+        await client.send_message(message.channel, res.pods[1].img)
+      except IndexError:
+        await client.send_message(message.channel, mess.replace('!wolfram ','')+' was not found.')
     elif mess.startswith('!emoji'):
+        await client.send_typing(message.channel)
         await client.send_message(message.channel, emoji[random.randint(0, len(emoji) - 1)])
     elif mess.startswith('!drama'):
+        await client.send_typing(message.channel)
         await client.send_message(message.channel, drama[random.randint(0, len(drama) - 1)])
     elif mess.startswith('!cat bomb'):
+        await client.send_typing(message.channel)
         mess = mess.replace('!cat bomb ', '')
         try:
             count = int(mess)
@@ -75,6 +88,7 @@ async def on_message(message):
         except KeyError:
             await client.send_message(message.channel, 'Command could not be found.')
     elif mess.startswith('!decide'):
+        await client.send_typing(message.channel)
         mess = mess.replace('!decide ', '')
         dec = mess.split('or')
         if len(dec) < 2:
@@ -83,8 +97,10 @@ async def on_message(message):
             answer = 'I\'d go with: **' + dec[random.randint(0, len(dec) - 1)] + '**'
         await client.send_message(message.channel, answer)
     elif mess.startswith('!8ball'):
+        await client.send_typing(message.channel)
         await client.send_message(message.channel, ball())
     elif mess.startswith('!gif'):
+        await client.send_typing(message.channel)
         mess = mess.replace('!gif ', '')
         g = giphypop.Giphy()
         results = [x for x in g.search(mess)]
@@ -93,6 +109,7 @@ async def on_message(message):
         result = results[random.randint(0, len(results) - 1)]
         await client.send_message(message.channel, result)
     elif mess.startswith('!ganja add'):
+        await client.send_typing(message.channel)
         mess = mess.replace('!ganja add ', '')
         if mess.startswith('gif '):
             mess = mess.replace('gif ', '').replace(' \"', '---\"')
@@ -119,6 +136,7 @@ async def on_message(message):
                 quotes[quotee] = tmp
                 await client.send_message(message.channel, ''+users[quotee]+' \"'+mess+'\" was added.')
     elif message.content.startswith('!ganja quote'):
+        await client.send_typing(message.channel)
         if len(message.mentions) != 1:
             await client.send_message(message.channel, 'usage: !ganja quote @person number (optional)')
         else:
@@ -143,9 +161,11 @@ async def on_message(message):
                         index = random.randint(0, len(quote_list)-1)
                     await client.send_message(message.channel, ''+users[quotee]+'\t'+str(index)+': '+quote_list[index])
     elif message.content.startswith('!ganja help'):
+        await client.send_typing(message.channel)
         cmds = '```'
         cmds += '!gif search term\r\n'
-        cmds += '!decide something **or** something...\r\n'
+        cmds += '!decide something or something...\r\n'
+        cmds += '!wolfram something\r\n'
         cmds += '!8ball question \r\n'
         cmds += '!emoji \r\n'
         cmds += '!drama \r\n'
@@ -156,7 +176,7 @@ async def on_message(message):
                     '```!ganja add gif \"commandname\" \"site or text\"```',
                     'Ganjabot finds your quotes offensive, add quotes with:',
                     '```!ganja add quote @person what you want to quote```',
-                    'View league commands with **!lol**.\n',
+                    'View league commands with: ```!lol```',
                     'View quotes with:',
                     '```!ganja quote @person'
                     '\r\n!ganja quote @person number'
@@ -307,4 +327,4 @@ drama = [
     'http://i.imgur.com/jqr2gUM.gif'
 ]
 
-client.run(dev_token)
+client.run(token)

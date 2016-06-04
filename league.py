@@ -37,12 +37,8 @@ class LolGame:
         self.blue_side = []
         self.red_side = []
         self.owner_side = ''
-        i = 0
-        for participant in response['participants']:
-            i += 1
-            if i == 4:
-                i = 0
-                time.sleep(10)
+        self.match = response
+        for participant in self.match['participants']:
             summid = participant['summonerId']
             name = participant['summonerName']
             side = participant['teamId']
@@ -58,7 +54,7 @@ class LolGame:
                 games = wins + losses
                 win_rate = round((wins / games) * 100, 2)
             champ_name = get_champ_by_id(champ)
-            rank = get_ranked_info(owner_id)
+            rank = get_ranked_info(summid)
             entry = {'name': name, 'rank': rank, 'champ': get_champ_by_id(champ), 'rate': str(win_rate),
                      'games': str(games)}
             if side == 100:
@@ -70,10 +66,10 @@ class LolGame:
                     self.owner_side = 'Blue'
                 else:
                     self.owner_side = 'Red'
+            time.sleep(2)
 
     def get_formated_string(self):
-        line1 = 'You got this! You can find **' + self.owner_name.replace('%20',
-                                                                          ' ') + '** on __' + self.owner_side + '__ side. \n\n'
+        line1 = 'You got this! You can find **' + self.owner_name.replace('%20',' ') + '** on __' + self.owner_side + '__ side. \n\n'
         blue_side = '__Blue side:__\n'
         for pers in self.blue_side:
             blue_side += '**' + pers['name'] + '** - ' + pers['rank'] + ' - **' + pers['champ'] + '**, __' + \
@@ -88,19 +84,17 @@ class LolGame:
 def get_response(url):
     request = urllib.request.Request(url, headers=header)
     with urllib.request.urlopen(request) as f:
-        response = f.read().decode('UTF-8')
+      response = f.read().decode('UTF-8')
     response_dict = json.JSONDecoder().decode(response)
     return response_dict
 
 
 def get_champions_stats(summid):
-    return get_response('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/' + str(summid) +
-                        '/ranked?season=SEASON2016&api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+    return get_response('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/' + str(summid) + '/ranked?season=SEASON2016&api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
 
 
 def get_ranked_info(summid):
-    leagues = get_response('https://euw.api.pvp.net/api/lol/euw/v2.5/league/by-summoner/' + str(summid) +
-                           '?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+    leagues = get_response('https://euw.api.pvp.net/api/lol/euw/v2.5/league/by-summoner/' + str(summid) +'?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
     sum_div = list(filter(lambda summ: summ['playerOrTeamId'] == str(summid), leagues[str(summid)][0]['entries']))[0]
     division = sum_div['division']
     tier = leagues[str(summid)][0]['tier'].lower().capitalize()
@@ -126,7 +120,7 @@ def format_list(list, init_statement):
 
 
 def get_bans(args):
-    list = get_response('http://api.champion.gg/stats/champs/mostBanned?api_key=' + api_token + '&limit=25')['data']
+    list = get_response('http://api.champion.gg/stats/champs/mostBanned?api_key='+api_token+'&limit=25')['data']
     message = 'Here\'s the list of the top 10 most common bans:\n'
     messages = []
     champs = []
@@ -164,8 +158,7 @@ def get_champions(keys=False):
         if champions['date'] != date.today():
             champions.clear()
             champions['date'] = date.today()
-            resp = get_response(
-                'https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?champData=image&api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+            resp = get_response('https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?champData=image&api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
             champions['list'] = []
             champions['keys'] = []
             for x in resp['data'].values():
@@ -264,15 +257,11 @@ def find_match(args):
     if region == '':
         return '**' + args + '** was not recognized.'
     name = name.replace(' ', '%20')
-    summid = get_response('https://' + region
-                          + '.api.pvp.net/api/lol/' + region
-                          + '/v1.4/summoner/by-name/' + name + '?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+    summid = get_response('https://' + region + '.api.pvp.net/api/lol/' + region + '/v1.4/summoner/by-name/' + name + '?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
     for x in summid:
         id = summid[x]['id']
     try:
-        match = get_response('https://' + region
-                             + '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' + region.upper()
-                             + '1/' + str(id) + '?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
+        match = get_response('https://' + region + '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' + region.upper() + '1/' + str(id) + '?api_key=faa6bd84-960e-45ab-b096-75bce8599e09')
     except urllib.error.HTTPError:
         return 'Match for: ' + name.replace('%20', ' ') + ' on ' + region + ' could not be found.'
     game = LolGame(match, str(id), name)
