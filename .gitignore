@@ -5,3 +5,4 @@ quotes
 users
 __pycache__/
 .bak/
+.idea/
