@@ -241,4 +241,4 @@ def close_all():
 
 
 atexit.register(close_all)
-client.run(dev_token)
+client.run(token)
