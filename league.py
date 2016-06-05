@@ -263,17 +263,20 @@ def find_match(args):
     if region == '':
         return '**' + args + '** was not recognized.'
     name = name.replace(' ', '%20')
-    summid = get_response(
-        'https://' + region + '.api.pvp.net/api/lol/' + region + '/v1.4/summoner/by-name/' + name + '?api_key=' + riot_token)
+    try:
+        summid = get_response(
+            'https://' + region + '.api.pvp.net/api/lol/' + region + '/v1.4/summoner/by-name/' + name + '?api_key=' + riot_token)
+    except urllib.error.HTTPError:
+        return 'Summoner: **' + name + '** could not be found.'
     for x in summid:
         id = summid[x]['id']
     try:
         match = get_response(
             'https://' + region + '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' + region.upper() + '1/' + str(
                 id) + '?api_key=' + riot_token)
+        game = LolGame(match, str(id), name)
     except urllib.error.HTTPError:
         return 'Match for: ' + name.replace('%20', ' ') + ' on ' + region + ' could not be found.'
-    game = LolGame(match, str(id), name)
     return game.get_formated_string()
 
 
