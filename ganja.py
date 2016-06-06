@@ -7,9 +7,13 @@ import discord
 import os
 import giphypop
 import wolframalpha
+import threading
 from urllib import request
 from league import run_command
-
+from helpers import youtube_url_validation
+from helpers import get_vid_title
+from queue import Queue
+from queue import Empty
 
 class GanjaClient(discord.Client):
     def __init__(self, tokenfile, dev=False):
@@ -24,6 +28,11 @@ class GanjaClient(discord.Client):
         self.database = '.databases/'
         self.http_header = {'User-Agent': 'Mozilla/5.0', 'Accept': 'text/html,application/json'}
         self.list_commands = {}
+        self.voice = None
+        self.player = None
+        self.last_channel = None
+        self.queue = Queue()
+        self.queue_name = Queue()
         for i in os.listdir('data'):
             with open('data/' + i) as f:
                 lines = f.read().splitlines()
@@ -35,6 +44,8 @@ class GanjaClient(discord.Client):
 
     def run(self):
         super(GanjaClient, self).run(self.token)
+        td = PlayThread(self)
+        td.start()
 
     def get_from_shelve(self, name, item):
         with shelve.open(self.database + name) as db:
@@ -106,7 +117,11 @@ class GanjaClient(discord.Client):
 
     @asyncio.coroutine
     def on_message(self, message):
-        mess = message.content
+        if str(message) == 'INTERNAL':
+            mess = '!dj next'
+        else:
+            mess = message.content
+            self.last_channel = message.channel
         if not mess.startswith('!'):
             return
         if mess.startswith('!lol'):
@@ -130,11 +145,10 @@ class GanjaClient(discord.Client):
                 yield from self.send_message(message.channel, res.pods[1].img)
             except IndexError:
                 yield from self.send_message(message.channel, mess.replace('!wolfram ', '') + ' was not found.')
-
         elif mess.replace('!', '').split()[0] in self.list_commands:
             yield from self.send_typing(message.channel)
             ls = mess.replace('!', '').split()[0]
-            yield from self.send_message(random.choice(self.list_commands[ls]))
+            yield from self.send_message(message.channel, random.choice(self.list_commands[ls]))
         elif mess.startswith('!cat bomb'):
             yield from self.send_typing(message.channel)
             mess = mess.replace('!cat bomb ', '')
@@ -189,12 +203,13 @@ class GanjaClient(discord.Client):
                     self.add_command(key, value)
                     yield from self.send_message(message.channel, key + ' was added.')
             elif mess.startswith('quote'):
-                mess = message.clean_content.replace('!ganja add quote ', '')
+                mess = message.clean_content.replace('!add quote ', '')
                 mess = re.sub(r'@\S+\s', '', mess)
                 if len(message.mentions) != 1:
                     yield from self.send_message(message.channel, 'usage: !add quote @person quote')
                 else:
                     quotee, added = self.find_id(message.mentions[0].mention)
+                    self.add_quote(quotee, mess)
                     yield from self.send_message(message.channel,
                                                  '' + self.get_user(quotee) + ' \"' + mess + '\" was added.')
         elif mess.startswith('!quote'):
@@ -212,17 +227,18 @@ class GanjaClient(discord.Client):
                     if mess == 'list':
                         quote_line = '\r\n'.join(quote_list)
                         response = '```' + quote_line + '```'
-                        yield from self.send_message(message.channel, '' + users[quotee])
+                        yield from self.send_message(message.channel, '' + self.get_user(quotee))
                         yield from self.send_message(message.channel, response)
                     else:
                         try:
-                            index = int(mess)
+                            index = int(mess) - 1
                         except ValueError:
                             index = -1
                         if index == -1 or index >= len(quote_list):
                             index = random.randint(0, len(quote_list) - 1)
                         yield from self.send_message(message.channel,
-                                                     '' + self.get_user(quotee) + '\t' + str(index) + ': ' + quote_list[
+                                                     '' + self.get_user(quotee) + '\n' + str(index + 1) + ': ' +
+                                                     quote_list[
                                                          index])
         elif mess.startswith('!help'):
             yield from self.send_typing(message.channel)
@@ -262,3 +278,79 @@ class GanjaClient(discord.Client):
         elif self.is_command(mess):
             response = self.get_command(mess)
             yield from self.send_message(message.channel, response)
+        elif mess.startswith('!dj'):
+            mess = mess.replace('!dj ', '')
+            if mess.startswith('join'):
+                self.voice = yield from self.join_voice_channel(message.author.voice_channel)
+            elif mess.startswith('play'):
+                if self.voice:
+                    if self.player:
+                        if self.player.is_playing():
+                            self.player.stop()
+                self.voice = yield from self.join_voice_channel(message.author.voice_channel)
+                self.player = yield from self.voice.create_ytdl_player(self.queue.get())
+                yield from self.send_message(message.channel, 'Now playing: **' + self.queue_name.get() + '**')
+                self.player.volume = 0.05
+                self.player.start()
+            elif mess.startswith('add'):
+                url = mess.replace('add', '').replace(' ', '') + '&'
+                search = re.search('([^&]*)&.*$', url)
+                url = search.group(1)
+                match = youtube_url_validation(url)
+                if match:
+                    self.queue.put(url)
+                    title = get_vid_title(url)
+                    self.queue_name.put(title)
+                    yield from self.send_message(message.channel, '**' + title + '** was added.')
+                    yield from self.delete_message(message)
+            elif mess.startswith('next'):
+                if self.voice:
+                    try:
+                        self.player = yield from self.voice.create_ytdl_player(self.queue.get())
+                        yield from self.send_message(message.channel, 'Now playing: **' + self.queue_name.get() + '**')
+                        self.player.volume = 0.5
+                        self.player.start()
+                    except Empty:
+                        if self.last_channel:
+                            yield from self.send_message(self.last_channel, 'List empty, stopping')
+                            self.voice.disconnect()
+                else:
+                    yield from self.send_message(message.channel,
+                                                 'Not connected to voice_channel, please use !dj join or !dj play.')
+            elif mess.startswith('stop'):
+                if self.voice:
+                    if self.player:
+                        if self.player.is_playing():
+                            self.player.stop()
+                    yield from self.voice.disconnect()
+            elif mess.startswith('list'):
+                ret = 'Current songs in queue:'
+                i = 0
+                for elem in list(self.queue_name.queue):
+                    i += 1
+                    ret += '\n**[' + str(i) + '] ' + elem + '**'
+                yield from self.send_message(message.channel, ret)
+            elif mess.startswith('volup'):
+                if self.player:
+                    self.player.volume += 0.01
+            elif mess.startswith('voldown'):
+                if self.player:
+                    self.player.volume -= 0.01
+
+
+class PlayThread(threading.Thread):
+    def __init__(self, client):
+        threading.Thread.__init__(self)
+        self.client = client
+
+    def run(self):
+        try:
+            while True:
+                if self.client.voice:
+                    if self.client.player:
+                        if not self.client.is_playing():
+                            yield from self.client.on_message('INTERNAL')
+                    else:
+                        yield from self.client.on_message('INTERNAL')
+        except KeyboardInterrupt:
+            return
