@@ -5,48 +5,248 @@ import time
 from datetime import date, timedelta
 from bans import create_image
 
-with open('.apikeys') as keys:
-    data = json.load(keys)
-api_token = data['open_league_token']
-riot_token = data['league_token']
-header = {'User-Agent': 'Mozilla/5.0',
-          'Accept': 'text/html,application/json'}
-positions = {
-    'top': 'Top',
-    'mid': 'Middle',
-    'middle': 'Middle',
-    'jungle': 'Jungle',
-    'jg': 'Jungle',
-    'bot': 'ADC',
-    'adc': 'ADC',
-    'support': 'Support',
-    'sup': 'Support',
-    'supp': 'Support',
-    'Top': 'Top',
-    'Mid': 'Middle',
-    'Middle': 'Middle',
-    'Jungle': 'Jungle',
-    'Adc': 'ADC',
-    'Support': 'Support'
-}
-regions = ['euw', 'na', 'br', 'eune', 'kr', 'lan', 'las', 'oce', 'ru', 'tr']
+
+class League:
+    def __init__(self, open_token, riot_token, header):
+        with open('league/info') as f:
+            data = json.load(f)
+            self.regions = data['regions']
+            self.positions = data['positions']
+        self.header = header
+        self.riot_token = riot_token
+        self.open_token = open_token
+        self.dispatch = {
+            'status': self.status,
+            'match': self.find_match,
+            'counters': self.get_matchup,
+            'bans': self.get_bans,
+            'best': self.get_roles,
+            'help': self.info
+        }
+
+    @staticmethod
+    def format_list(lst, init_statement):
+        response = [init_statement]
+        for i in range(len(lst)):
+            delim = '  '
+            if i == 9:
+                delim = ' '
+            response.append(str(i + 1) + ':' + delim + lst[i])
+        return '\n'.join(response)
+
+    @staticmethod
+    def get_image(champion):
+        champions = None
+        try:
+            champions = shelve.open('champions')
+            return champions[champion]['img']
+        finally:
+            if champions:
+                champions.close()
+
+    @staticmethod
+    def info(args=None):
+        return 'Ganja plays lol too! Here are the comands she recognizes:\n\r' + \
+               '**!lol** status\n  Get the LoL Game and Client server status for all regions\n' + \
+               '**!lol** match region summoner-name\n ' \
+               'Get match information for the __current__ match (might take a few seconds)\n' + \
+               '**!lol** counters champ-name position\n Get the top 10 counters for a champion and position\n' + \
+               '**!lol** bans\n Get the top 10 most common bans\n' + \
+               '**!lol** best position\n Get the 10 best champions for a given position\n' + \
+               '**!lol** help\n Display this message'
+
+    def get_champions(self, keys=False):
+        champions = None
+        try:
+            champions = shelve.open('champions')
+            if 'date' not in champions:
+                champions['date'] = date.today() - timedelta(days=2)
+            if champions['date'] != date.today():
+                champions.clear()
+                champions['date'] = date.today()
+                resp = self.get_response(
+                    'https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?champData=image&api_key=' +
+                    self.riot_token)
+                champions['list'] = []
+                champions['keys'] = []
+                for x in resp['data'].values():
+                    name = x['name']
+                    c_id = x['id']
+                    img = x['image']['full']
+                    title = x['title']
+                    key = x['key']
+                    tmp = champions['list']
+                    tmp.append(name)
+                    champions['list'] = tmp
+                    tmp2 = champions['keys']
+                    tmp2.append(key)
+                    champions['keys'] = tmp2
+                    champions[name] = {'name': name, 'id': c_id, 'img': img, 'title': title, 'key': key}
+                    champions[str(id)] = name
+            if 'img' not in champions:
+                champions['image'] = 'http://ddragon.leagueoflegends.com/cdn/6.11.1/img/champion/'
+            if keys:
+                ret = champions['keys']
+                return ret, champions['list']
+            return champions['list']
+        finally:
+            if champions:
+                champions.close()
+
+    def get_response(self, url):
+        request = urllib.request.Request(url, headers=self.header)
+        with urllib.request.urlopen(request) as f:
+            response = f.read().decode('UTF-8')
+        response_dict = json.JSONDecoder().decode(response)
+        return response_dict
+
+    def get_champions_stats(self, summ_id, region):
+        return self.get_response('https://'+region+'.api.pvp.net/api/lol/'+region+'/v1.3/stats/by-summoner/' +
+                                 str(summ_id) + '/ranked?season=SEASON2016&api_key=' + self.riot_token)
+
+    def get_bans(self, args):
+        lst = self.get_response('http://api.champion.gg/stats/champs/mostBanned?api_key=' + self.open_token +
+                                '&limit=25')['data']
+        message = 'Here\'s the list of the top 10 most common bans:\n'
+        messages = []
+        champs = []
+        for x in lst:
+            champ = x['name']
+            if champ not in champs:
+                champs.append(champ)
+                messages.append('**' + champ + '**')
+            if len(champs) == 10:
+                break
+        return self.format_list(messages, message)
+
+    def get_roles(self, lane):
+        try:
+            position = self.positions[lane]
+        except KeyError:
+            return 'Role: **' + lane + '**, could not be found.'
+        lst = self.get_response('http://api.champion.gg/stats/role/' + position +
+                                '/bestperformance?api_key=' + self.open_token)['data']
+        message = 'Here\'s the top 10 of role: **' + position + '**'
+        messages = []
+        for x in lst:
+            champ = x['name']
+            win_rate = x['general']['winPercent']
+            messages.append('**' + champ + '** with a ' + str(win_rate) + '% win rate.')
+        return self.format_list(messages, message)
+
+    def find_champion_name_by_key(self, name):
+        keys, champs = self.get_champions(keys=True)
+        if name not in keys:
+            raise Exception('Name not found')
+        return champs[keys.index(name)]
+
+    def get_champion_details(self, champ):
+        if champ not in self.get_champions():
+            raise KeyError('Champion not found')
+        else:
+            try:
+                champions = shelve.open('champions')
+                return champions[champ]
+            finally:
+                champions.close()
+
+    def get_matchup(self, args):
+        chmplst = self.get_champions()
+        champion = ''
+        lane = ''
+        args = args.lower()
+        for chmp in chmplst:
+            test = chmp.lower()
+            if args.replace(test, '') != args:
+                champion = chmp
+                lane = args.replace(test, '').strip()
+                break
+        if lane == '':
+            return '**' + args + '** was not recognized.'
+        try:
+            position = self.positions[lane]
+        except KeyError:
+            return 'Role: **' + lane + '**, could not be found.'
+        req = self.get_response('http://api.champion.gg/champion/' + champion + '/matchup?api_key=' + self.open_token)
+        index = -1
+        for i in range(len(req)):
+            if req[i]['role'] == position:
+                index = i
+                break
+        if index == -1:
+            return 'No matchup information for: **' + champion + ' ' + position + '** could be found.'
+        matchups = req[index]['matchups']
+        matchups_sorted = sorted(matchups, key=lambda k: k['statScore'])
+        name_im = list()
+        for i in range(10):
+            name = self.find_champion_name_by_key(matchups_sorted[i]['key'])
+            image = self.get_image(name)
+            name_im.append({'image': image, 'name': name})
+        return create_image(champion, self.get_image(champion), position, matchups_sorted, name_im)
+
+    def find_match(self, args):
+        self.get_champions()
+        region = ''
+        name = ''
+        for reg in self.regions:
+            if args.replace(reg, '') != args:
+                region = reg
+                name = args.replace(reg, '').strip()
+                break
+        if region == '':
+            return '**' + args + '** was not recognized.'
+        name = name.replace(' ', '%20')
+        try:
+            summid = self.get_response('https://' + region + '.api.pvp.net/api/lol/' + region +
+                                       '/v1.4/summoner/by-name/' + name + '?api_key=' + self.riot_token)
+        except urllib.error.HTTPError:
+            return 'Summoner: **' + name + '** could not be found.'
+        for x in summid:
+            s_id = summid[x]['id']
+        try:
+            match = self.get_response('https://' + region +
+                                      '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' +
+                                      region.upper() + '1/' + str(s_id) + '?api_key=' + self.riot_token)
+            game = LolGame(match, str(s_id), name, region, self)
+        except urllib.error.HTTPError:
+            return 'Match for: ' + name.replace('%20', ' ') + ' on ' + region + ' could not be found.'
+        return game.get_formatted_string()
+
+    def status(self, args):
+        info = ''
+        for reg in self.regions:
+            info += reg.upper() + ':\n'
+            stat = self.get_response('http://status.leagueoflegends.com/shards/' + reg)
+            info += '-Game: **' + stat['services'][0]['status'] + '**\n'
+            info += '-Client: **' + stat['services'][3]['status'] + '**\n'
+        info = info[:-1]
+        return info
+
+    def run_command(self, command, args):
+        try:
+            return self.dispatch[command](args)
+        except KeyError:
+            return self.dispatch['help']()
 
 
 class LolGame:
-    def __init__(self, response, owner_id, owner_name):
-        get_champions()
+    """Class representation one league game. When this class is created """
+    def __init__(self, response, owner_id, owner_name, region, league):
         self.owner_id = owner_id
         self.owner_name = owner_name
         self.blue_side = []
         self.red_side = []
         self.owner_side = ''
         self.match = response
+        self.region = region
+        self.league = league
+        self.league.get_champions()
         for participant in self.match['participants']:
-            summid = participant['summonerId']
+            summ_id = participant['summonerId']
             name = participant['summonerName']
             side = participant['teamId']
             champ = participant['championId']
-            stats = get_champions_stats(summid)
+            stats = league.get_champions_stats(summ_id, self.region)
             champ_stat = list(filter(lambda champion: champion['id'] == champ, stats['champions']))
             if not champ_stat:
                 win_rate = 0
@@ -56,261 +256,43 @@ class LolGame:
                 losses = champ_stat[0]['stats']['totalSessionsLost']
                 games = wins + losses
                 win_rate = round((wins / games) * 100, 2)
-            champ_name = get_champ_by_id(champ)
-            rank = get_ranked_info(summid)
-            entry = {'name': name, 'rank': rank, 'champ': get_champ_by_id(champ), 'rate': str(win_rate),
+            rank = self.get_ranked_info(summ_id)
+            entry = {'name': name, 'rank': rank, 'champ': self.get_champ_by_id(champ), 'rate': str(win_rate),
                      'games': str(games)}
             if side == 100:
                 self.blue_side.append(entry)
             else:
                 self.red_side.append(entry)
-            if str(summid) == str(owner_id):
+            if str(summ_id) == str(owner_id):
                 if side == 100:
                     self.owner_side = 'Blue'
                 else:
                     self.owner_side = 'Red'
             time.sleep(2)
 
-    def get_formated_string(self):
-        line1 = 'You got this! You can find **' + self.owner_name.replace('%20',' ') + '** on __' + self.owner_side + '__ side. \n\n'
+    def get_champ_by_id(self, champ_id):
+        return self.league.get_response('https://global.api.pvp.net/api/lol/static-data/' + self.region +
+                                 '/v1.2/champion/' + str(champ_id) + '?api_key=' + self.league.riot_token)['name']
+
+    def get_formatted_string(self):
+        line1 = 'You got this! You can find **' + self.owner_name.replace('%20', ' ') + '** on __' + self.owner_side + \
+                '__ side. \n\n'
         blue_side = '__Blue side:__\n'
         for pers in self.blue_side:
             blue_side += '**' + pers['name'] + '** - ' + pers['rank'] + ' - **' + pers['champ'] + '**, __' + \
-                         pers['rate'] + '%__ winrate over __' + pers['games'] + 'games__\n'
+                         pers['rate'] + '%__ win rate over __' + pers['games'] + 'games__\n'
         red_side = '\n__Red side:__'
         for pers in self.red_side:
             red_side += '\n**' + pers['name'] + '** - ' + pers['rank'] + ' - **' + pers['champ'] + '**, __' + \
-                        pers['rate'] + '%__ winrate over __' + pers['games'] + 'games__'
+                        pers['rate'] + '%__ win rate over __' + pers['games'] + 'games__'
         return line1 + blue_side + red_side
 
-
-def get_response(url):
-    request = urllib.request.Request(url, headers=header)
-    with urllib.request.urlopen(request) as f:
-      response = f.read().decode('UTF-8')
-    response_dict = json.JSONDecoder().decode(response)
-    return response_dict
-
-
-def get_champions_stats(summid):
-    return get_response('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/' + str(
-        summid) + '/ranked?season=SEASON2016&api_key=' + riot_token)
-
-
-def get_ranked_info(summid):
-    leagues = get_response(
-        'https://euw.api.pvp.net/api/lol/euw/v2.5/league/by-summoner/' + str(summid) + '?api_key=' + riot_token)
-    sum_div = list(filter(lambda summ: summ['playerOrTeamId'] == str(summid), leagues[str(summid)][0]['entries']))[0]
-    division = sum_div['division']
-    tier = leagues[str(summid)][0]['tier'].lower().capitalize()
-    return tier + ' ' + division
-
-
-def get_champ_by_id(id):
-    try:
-        champs = shelve.open('champions')
-        return champs[str(id)]
-    finally:
-        champs.close()
-
-
-def format_list(list, init_statement):
-    response = [init_statement]
-    for i in range(len(list)):
-        delim = '  '
-        if i == 9:
-            delim = ' '
-        response.append(str(i + 1) + ':' + delim + list[i])
-    return '\n'.join(response)
-
-
-def get_bans(args):
-    list = get_response('http://api.champion.gg/stats/champs/mostBanned?api_key='+api_token+'&limit=25')['data']
-    message = 'Here\'s the list of the top 10 most common bans:\n'
-    messages = []
-    champs = []
-    for x in list:
-        champ = x['name']
-        if champ not in champs:
-            champs.append(champ)
-            messages.append('**' + champ + '**')
-        if len(champs) == 10:
-            break
-    return format_list(messages, message)
-
-
-def get_roles(lane):
-    try:
-        position = positions[lane]
-    except KeyError:
-        return 'Role: **' + lane + '**, could not be found.'
-    list = get_response('http://api.champion.gg/stats/role/' + position + '/bestperformance?api_key=' + api_token)[
-        'data']
-    message = 'Here\'s the top 10 of role: **' + position + '**'
-    messages = []
-    for x in list:
-        champ = x['name']
-        winrate = x['general']['winPercent']
-        messages.append('**' + champ + '** with a ' + str(winrate) + '% winrate.')
-    return format_list(messages, message)
-
-
-def get_champions(keys=False):
-    try:
-        champions = shelve.open('champions')
-        if 'date' not in champions:
-            champions['date'] = date.today() - timedelta(days=2)
-        if champions['date'] != date.today():
-            champions.clear()
-            champions['date'] = date.today()
-            resp = get_response(
-                'https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?champData=image&api_key=' + riot_token)
-            champions['list'] = []
-            champions['keys'] = []
-            for x in resp['data'].values():
-                name = x['name']
-                id = x['id']
-                img = x['image']['full']
-                title = x['title']
-                key = x['key']
-                tmp = champions['list']
-                tmp.append(name)
-                champions['list'] = tmp
-                tmp2 = champions['keys']
-                tmp2.append(key)
-                champions['keys'] = tmp2
-                champions[name] = {'name': name, 'id': id, 'img': img, 'title': title, 'key': key}
-                champions[str(id)] = name
-        if 'img' not in champions:
-            champions['image'] = 'http://ddragon.leagueoflegends.com/cdn/6.11.1/img/champion/'
-        if keys:
-            ret = champions['keys']
-            return ret, champions['list']
-        return champions['list']
-    finally:
-        champions.close()
-
-
-def get_image(champion):
-    try:
-        champions = shelve.open('champions')
-        return champions[champion]['img']
-    finally:
-        champions.close()
-
-
-def find_champion_name_by_key(name):
-    keys, champs = get_champions(keys=True)
-    if name not in keys:
-        raise Exception('Name not found')
-    return champs[keys.index(name)]
-
-
-def get_champion_details(champ):
-    if champ not in get_champions():
-        raise KeyError('Champion not found')
-    else:
-        try:
-            champions = shelve.open('champions')
-            return champions[champ]
-        finally:
-            champions.close()
-
-
-def get_matchup(args):
-    chmplst = get_champions()
-    champion = ''
-    lane = ''
-    args = args.lower()
-    for chmp in chmplst:
-        test = chmp.lower()
-        if args.replace(test, '') != args:
-            champion = chmp
-            lane = args.replace(test, '').strip()
-            break
-    if lane == '':
-        return '**' + args + '** was not recognized.'
-    try:
-        position = positions[lane]
-    except KeyError:
-        return 'Role: **' + lane + '**, could not be found.'
-    req = get_response('http://api.champion.gg/champion/' + champion + '/matchup?api_key=' + api_token)
-    index = -1
-    for i in range(len(req)):
-        if req[i]['role'] == position:
-            index = i
-            break
-    if index == -1:
-        return 'No matchup information for: **' + champion + ' ' + position + '** could be found.'
-    matchups = req[index]['matchups']
-    matchups_sorted = sorted(matchups, key=lambda k: k['statScore'])
-    name_im = list()
-    for i in range(10):
-        name = find_champion_name_by_key(matchups_sorted[i]['key'])
-        image = get_image(name)
-        name_im.append({'image': image, 'name': name})
-    return create_image(champion, get_image(champion), position, matchups_sorted, name_im)
-
-
-def find_match(args):
-    region = ''
-    name = ''
-    for reg in regions:
-        if args.replace(reg, '') != args:
-            region = reg
-            name = args.replace(reg, '').strip()
-            break
-    if region == '':
-        return '**' + args + '** was not recognized.'
-    name = name.replace(' ', '%20')
-    try:
-        summid = get_response(
-            'https://' + region + '.api.pvp.net/api/lol/' + region + '/v1.4/summoner/by-name/' + name + '?api_key=' + riot_token)
-    except urllib.error.HTTPError:
-        return 'Summoner: **' + name + '** could not be found.'
-    for x in summid:
-        id = summid[x]['id']
-    try:
-        match = get_response(
-            'https://' + region + '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' + region.upper() + '1/' + str(
-                id) + '?api_key=' + riot_token)
-        game = LolGame(match, str(id), name)
-    except urllib.error.HTTPError:
-        return 'Match for: ' + name.replace('%20', ' ') + ' on ' + region + ' could not be found.'
-    return game.get_formated_string()
-
-
-def status(args):
-    info = ''
-    for reg in regions:
-        info += reg.upper() + ':\n'
-        stat = get_response('http://status.leagueoflegends.com/shards/' + reg)
-        info += '-Game: **' + stat['services'][0]['status'] + '**\n'
-        info += '-Client: **' + stat['services'][3]['status'] + '**\n'
-    info = info[:-1]
-    return info
-
-
-def info():
-    return 'Ganja plays lol too! Here are the comands she recognizes:\n\r' + \
-           '**!lol** status\n  Get the LoL Game and Client server status for all regions\n' + \
-           '**!lol** match region summoner-name\n Get match information for the __current__ match (might take a few seconds)\n' + \
-           '**!lol** counters champ-name position\n Get the top 10 counters for a champion and position\n' + \
-           '**!lol** bans\n Get the top 10 most common bans\n' + \
-           '**!lol** best position\n Get the 10 best champions for a given position\n' + \
-           '**!lol** help\n Display this message'
-
-
-dispatch = {'status': status,
-            'match': find_match,
-            'counters': get_matchup,
-            'bans': get_bans,
-            'best': get_roles,
-            'help': info}
-
-
-def run_command(command, args):
-    try:
-        return dispatch[command](args)
-    except KeyError:
-        return dispatch['help']()
+    def get_ranked_info(self, summ_id):
+        leagues = self.league.get_response(
+            'https://'+self.region+'.api.pvp.net/api/lol/'+self.region+'/v2.5/league/by-summoner/' + str(summ_id) +
+            '?api_key=' + self.league.riot_token)
+        sum_div = list(filter(lambda summ: summ['playerOrTeamId'] == str(summ_id),
+                              leagues[str(summ_id)][0]['entries']))[0]
+        division = sum_div['division']
+        tier = leagues[str(summ_id)][0]['tier'].lower().capitalize()
+        return tier + ' ' + division
