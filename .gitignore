@@ -3,6 +3,7 @@ champions
 commands
 quotes
 users
+.databases/
 __pycache__/
 .bak/
 .idea/
