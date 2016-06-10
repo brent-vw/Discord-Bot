@@ -14,24 +14,22 @@ from helpers import youtube_url_validation
 from helpers import get_vid_title
 from queue import Queue
 from queue import Empty
+__docformat__ = 'reStructuredText'
 
 
 class GanjaClient(discord.Client):
     """
-    Extends the Client class in discord.py.
-    Not only does it represent a client connection to the discord server, but it also initializes the used api tokens
-    and a representation of the League client by generating a _League object.
+Extends the Client class in discord.py.
     """
     def __init__(self, token_file, dev=False):
         """
-        Extends the Client class in discord.py.
         Not only does it represent a client connection to the discord server, but it also initializes the used api tokens
-        and a representation of the League client by generating a _League object.
-        :param token_file: location of the token file containing the api tokens
-        :type token_file: str
-        :param dev: allows the bot to start in a development environment with a separate discord bot token
-        :type dev: bool
-        :returns: GanjaClient -- the GanjaClient object acting as the discord client
+        and a representation of the League client by generating a League object.
+      :param str token_file: location of the token file containing the api tokens
+      :type token_file: str
+      :param dev: allows the bot to start in a development environment with a separate discord bot token
+      :type dev: bool
+      :returns: GanjaClient -- the GanjaClient object acting as the discord client
         """
         super(GanjaClient, self).__init__()
         with open(token_file) as f:
@@ -65,17 +63,17 @@ class GanjaClient(discord.Client):
         Will also start the thread that initializes the DJ portion of the bot in a later version.
         """
         super(GanjaClient, self).run(self.token)
-        # td = PlayThread(self)
-        # td.start()
+        td = PlayThread(self)
+        td.start()
 
     def get_from_shelve(self, name, item):
         """
         Al persistent data gets saved in a shelve file. This method will get a certain item from the shelf
-        :param name: name of the shelve to get the item from
-        :type name: str
-        :param item: name of the item you want from the shelve
-        :type item: str
-        :returns: str, list, dict
+      :param name: name of the shelve to get the item from
+      :type name: str
+      :param item: name of the item you want from the shelve
+      :type item: str
+      :returns: str, list, dict
         """
         with shelve.open(self.database + name) as db:
             return db[item]
@@ -83,12 +81,12 @@ class GanjaClient(discord.Client):
     def add_to_shelve(self, name, key, value):
         """
         Adds an item to the persistent shelve file.
-        :param name: name of the shelve to get the item from
-        :type name: str
-        :param key: the key representing the location in the shelve
-        :type key: str
-        :param value: the value to put in the shelve
-        :type value: str, list, dict
+      :param name: name of the shelve to get the item from
+      :type name: str
+      :param key: the key representing the location in the shelve
+      :type key: str
+      :param value: the value to put in the shelve
+      :type value: str, list, dict
         """
         with shelve.open(self.database + name) as db:
             db[key] = value
@@ -96,9 +94,9 @@ class GanjaClient(discord.Client):
     def get_command(self, key):
         """
         Gets the response of a user added command from the shelve.
-        :param key: command
-        :type key: str
-        :returns: str -- the response of the given command
+      :param key: command
+      :type key: str
+      :returns: str -- the response of the given command
         """
         try:
             return self.get_from_shelve('commands', key)
@@ -108,19 +106,19 @@ class GanjaClient(discord.Client):
     def add_command(self, key, value):
         """
         Adds a user-defined command, response pair to the shelve.
-        :param key: command
-        :type key: str
-        :param value: response
-        :type value: str
+      :param key: command
+      :type key: str
+      :param value: response
+      :type value: str
         """
         self.add_to_shelve('commands', key, value)
 
     def remove_command(self, key):
         """
         Removes a user-defined command from the shelve.
-        :param key: command
-        :type key: str
-        :returns: str -- the response to be sent to the discord server
+      :param key: command
+      :type key: str
+      :returns: str -- the response to be sent to the discord server
         """
         try:
             with shelve.open(self.database + 'commands') as commands:
@@ -132,7 +130,7 @@ class GanjaClient(discord.Client):
     def get_command_list(self):
         """
         Request a list of user-defined commands from the shelve.
-        :returns: list -- list of commands
+      :returns: list -- list of commands
         """
         with shelve.open(self.database + 'commands') as db:
             ret = db
@@ -141,9 +139,9 @@ class GanjaClient(discord.Client):
     def is_command(self, arg):
         """
         Checks if a string is a user-defined command.
-        :param arg: the string to test against
-        :type arg: str
-        :returns: bool -- whether the item is a user-defined command or not
+      :param arg: the string to test against
+      :type arg: str
+      :returns: bool -- whether the item is a user-defined command or not
         """
         with shelve.open(self.database + 'commands') as db:
             return arg in db
@@ -151,9 +149,9 @@ class GanjaClient(discord.Client):
     def get_quote(self, key):
         """
         Gets a previously saved quote by a server member from the shelve.
-        :param key: name of the quotee
-        :type key: str
-        :returns: list -- list of saved quotes made by the member
+      :param key: name of the quotee
+      :type key: str
+      :returns: list -- list of saved quotes made by the member
         """
         try:
             return self.get_from_shelve('quotes', key)
@@ -163,10 +161,10 @@ class GanjaClient(discord.Client):
     def add_quote(self, quotee, mess):
         """
         Adds a memorable quote by a server member to the shelf.
-        :param quotee: name of the quotee
-        :type quotee: str
-        :param mess: the actual quote
-        :type mess: str
+      :param quotee: name of the quotee
+      :type quotee: str
+      :param mess: the actual quote
+      :type mess: str
         """
         with shelve.open(self.database + 'quotes') as quotes:
             if quotee not in quotes:
@@ -178,9 +176,9 @@ class GanjaClient(discord.Client):
     def get_user(self, quotee):
         """
         Finds the string that can be used to mention a certain server member on the server.
-        :param quotee: name of the person
-        :type quotee: str
-        :returns: str -- will show up as a mention to the member on the discord server.
+      :param quotee: name of the person
+      :type quotee: str
+      :returns: str -- will show up as a mention to the member on the discord server.
         """
         try:
             return self.get_from_shelve('users', quotee)
@@ -190,9 +188,9 @@ class GanjaClient(discord.Client):
     def find_id(self, member):
         """
         Finds the name of a server member used in the shelve from a mention string.
-        :param member: discord server mention
-        :type member: str
-        :returns: str -- the plain string that represents the member in the database
+      :param member: discord server mention
+      :type member: str
+      :returns: str -- the plain string that represents the member in the database
         """
         with shelve.open(self.database + 'users') as users:
             uid = -1
@@ -208,11 +206,16 @@ class GanjaClient(discord.Client):
         return str(uid), added
 
     @asyncio.coroutine
+    def on_message_delete(self, message):
+        if message.content == 'http://i.imgur.com/IZAl8yz.png':
+            yield from self.send_file(message.channel, 'http://i.imgur.com/IZAl8yz.png')
+
+    @asyncio.coroutine
     def on_message(self, message):
         """
         Determines whether the command is a known message and handles + responds to it if it is.
-        :param message: the message sent by the discord users on the
-        :type message: discord.Message
+      :param message: the message sent by the discord users on the
+      :type message: discord.Message
         """
         # if str(message) == 'INTERNAL':
         #     mess = '!dj next'
@@ -455,8 +458,8 @@ class PlayThread(threading.Thread):
     def __init__(self, client):
         """
         Thread that handles the continuous playing of songs in the queue. Feature coming in a further version..
-        :param client: client the thread should listen to
-        :type client: GanjaClient
+      :param client: client the thread should listen to
+      :type client: GanjaClient
         """
         threading.Thread.__init__(self)
         self.client = client
