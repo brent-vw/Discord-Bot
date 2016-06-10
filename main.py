@@ -4,5 +4,5 @@ Will accept command line arguments in a future release.
 """
 import ganja
 
-client = ganja.GanjaClient('.apikeys', True)
+client = ganja.GanjaClient('.apikeys')
 client.run()
