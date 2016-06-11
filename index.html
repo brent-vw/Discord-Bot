@@ -1,0 +1,759 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to GanjaBot’s documentation! &mdash; GanjaBot 2.4.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.4.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GanjaBot 2.4.1 documentation" href="#" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-ganjabot-s-documentation">
+<h1>Welcome to GanjaBot&#8217;s documentation!<a class="headerlink" href="#welcome-to-ganjabot-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Ganjabot links different api&#8217;s together and gives you the best experience for your discord server. Users are able to add commands themselves aswell as use the many great commands already included in this bot.</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+<div class="section" id="module-ganja">
+<span id="ganjabot"></span><h1>GanjaBot<a class="headerlink" href="#module-ganja" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ganja.GanjaClient">
+<em class="property">class </em><code class="descclassname">ganja.</code><code class="descname">GanjaClient</code><span class="sig-paren">(</span><em>token_file</em>, <em>dev=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">discord.client.Client</span></code></p>
+<p>Extends the Client class in discord.py.</p>
+<blockquote>
+<div>Not only does it represent a client connection to the discord server, but it also initializes the used api tokens
+and a representation of the League client by generating a League object.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>token_file</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; location of the token file containing the api tokens</li>
+<li><strong>dev</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; allows the bot to start in a development environment with a separate discord bot token</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">GanjaClient &#8211; the GanjaClient object acting as the discord client</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ganja.GanjaClient.add_command">
+<code class="descname">add_command</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.add_command" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Adds a user-defined command, response pair to the shelve.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; command</li>
+<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; response</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.add_quote">
+<code class="descname">add_quote</code><span class="sig-paren">(</span><em>quotee</em>, <em>mess</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.add_quote" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Adds a memorable quote by a server member to the shelf.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>quotee</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the quotee</li>
+<li><strong>mess</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the actual quote</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.add_to_shelve">
+<code class="descname">add_to_shelve</code><span class="sig-paren">(</span><em>name</em>, <em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.add_to_shelve" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Adds an item to the persistent shelve file.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the shelve to get the item from</li>
+<li><strong>key</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the key representing the location in the shelve</li>
+<li><strong>value</strong> (<em>str, list, dict</em>) &#8211; the value to put in the shelve</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.find_id">
+<code class="descname">find_id</code><span class="sig-paren">(</span><em>member</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.find_id" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Finds the name of a server member used in the shelve from a mention string.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>member</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; discord server mention</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; the plain string that represents the member in the database</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.get_command">
+<code class="descname">get_command</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.get_command" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Gets the response of a user added command from the shelve.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; command</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; the response of the given command</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.get_command_list">
+<code class="descname">get_command_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.get_command_list" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Request a list of user-defined commands from the shelve.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list &#8211; list of commands</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.get_from_shelve">
+<code class="descname">get_from_shelve</code><span class="sig-paren">(</span><em>name</em>, <em>item</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.get_from_shelve" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Al persistent data gets saved in a shelve file. This method will get a certain item from the shelf</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the shelve to get the item from</li>
+<li><strong>item</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the item you want from the shelve</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">str, list, dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.get_quote">
+<code class="descname">get_quote</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.get_quote" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Gets a previously saved quote by a server member from the shelve.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the quotee</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list &#8211; list of saved quotes made by the member</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.get_user">
+<code class="descname">get_user</code><span class="sig-paren">(</span><em>quotee</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.get_user" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Finds the string that can be used to mention a certain server member on the server.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>quotee</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the person</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; will show up as a mention to the member on the discord server.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.is_command">
+<code class="descname">is_command</code><span class="sig-paren">(</span><em>arg</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.is_command" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Checks if a string is a user-defined command.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arg</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the string to test against</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">bool &#8211; whether the item is a user-defined command or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.on_message">
+<code class="descname">on_message</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.on_message" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Determines whether the command is a known message and handles + responds to it if it is.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>discord.Message</em>) &#8211; the message sent by the discord users on the</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.on_message_delete">
+<code class="descname">on_message_delete</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.on_message_delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.remove_command">
+<code class="descname">remove_command</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.remove_command" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Removes a user-defined command from the shelve.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; command</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; the response to be sent to the discord server</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ganja.GanjaClient.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ganja.GanjaClient.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the client so it actually starts listening to incoming connections.
+Will also start the thread that initializes the DJ portion of the bot in a later version.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ganja.PlayThread">
+<em class="property">class </em><code class="descclassname">ganja.</code><code class="descname">PlayThread</code><span class="sig-paren">(</span><em>client</em><span class="sig-paren">)</span><a class="headerlink" href="#ganja.PlayThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/threading.html#threading.Thread" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></code></a></p>
+<blockquote>
+<div>Thread that handles the continuous playing of songs in the queue. Feature coming in a further version..</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>client</strong> (<a class="reference internal" href="#ganja.GanjaClient" title="ganja.GanjaClient"><em>GanjaClient</em></a>) &#8211; client the thread should listen to</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ganja.PlayThread.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ganja.PlayThread.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-league">
+<span id="league"></span><h1>League<a class="headerlink" href="#module-league" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="league.League">
+<em class="property">class </em><code class="descclassname">league.</code><code class="descname">League</code><span class="sig-paren">(</span><em>open_token</em>, <em>riot_token</em>, <em>header</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Helper class for handling <strong>lol</strong> related requests received by the GanjaClient.</p>
+<blockquote>
+<div>Initializes the helper class</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>open_token</strong> &#8211; the api token for use with the <strong>champion.gg</strong> open api.</li>
+<li><strong>riot_token</strong> &#8211; the api token for use with the <strong>riot</strong> api.</li>
+<li><strong>header</strong> &#8211; http header used by api requests.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="league.League.find_champion_name_by_key">
+<code class="descname">find_champion_name_by_key</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.find_champion_name_by_key" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Looks up the champion name give the ChampionKey</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the champion</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; ChampionKey</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.find_match">
+<code class="descname">find_match</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.find_match" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the riot api if there&#8217;s an active game for a given summoner and generates a LolGame helper object to
+return a the details of the current game.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; request string coming from the discord server containing the summoner name and region</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; formatted response to be send to the discord server being either the response from LolGame
+or an error message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="league.League.format_list">
+<em class="property">static </em><code class="descname">format_list</code><span class="sig-paren">(</span><em>lst</em>, <em>init_statement</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.format_list" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Turns a list into a GanjaClient formatted response message.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lst</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; list of responses</li>
+<li><strong>init_statement</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; statement the message should begin with</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.get_bans">
+<code class="descname">get_bans</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_bans" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the most banned champions from the champion.gg api and reformats it to an unique top 10</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<a class="reference external" href="https://docs.python.org/2/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; empty, used so for dynamic method invocation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; formatted response to be send to the discord server</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.get_champion_details">
+<code class="descname">get_champion_details</code><span class="sig-paren">(</span><em>champ</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_champion_details" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Returns a detailed look at the given champion including name, key, image, id and title.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>champ</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; champion name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dict &#8211; detailed champion info</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.get_champions">
+<code class="descname">get_champions</code><span class="sig-paren">(</span><em>keys=False</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_champions" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Populates the local storage with the latest static champion information from the riot servers,
+if it hasn&#8217;t updated for more than 2 days.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>keys</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; whether to return a list of champion_keys and names or only names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list, list or list &#8211; list of champions by keys and/or by names</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.get_champions_stats">
+<code class="descname">get_champions_stats</code><span class="sig-paren">(</span><em>summ_id</em>, <em>region</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_champions_stats" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the ranked stats with all champions for a given summoner to the riot server.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>summ_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; summoner id</li>
+<li><strong>region</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; region of the summoner</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict &#8211; the json response mapped to a dict containing stats for all champions played in ranked S2016</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="league.League.get_image">
+<em class="property">static </em><code class="descname">get_image</code><span class="sig-paren">(</span><em>champion</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_image" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Retrieves the id to get the image of a certain champion from the local storage.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>champion</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the champion</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; name of the img resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.get_matchup">
+<code class="descname">get_matchup</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_matchup" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the 10 best matchups against a given champion with a given role from the champion.gg api
+and generates an image overview.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; request string coming from the discord server</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; formatted response to be send to the discord server either containing the filename
+or an error message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.get_response">
+<code class="descname">get_response</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_response" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Opens a connection with the api server sending the request and returning the response formatted to a dictionary.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the request encoded url</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dict &#8211; response of the server</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.get_roles">
+<code class="descname">get_roles</code><span class="sig-paren">(</span><em>lane</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.get_roles" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the champion.gg api which champions are the best for a given role.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lane</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the given role</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; formatted response to be send to the discord server</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="league.League.info">
+<em class="property">static </em><code class="descname">info</code><span class="sig-paren">(</span><em>args=None</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.info" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Returns a list of commands which GanjaClient can send to the discord server.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<a class="reference external" href="https://docs.python.org/2/library/constants.html#None" title="(in Python v2.7)"><em>None</em></a>) &#8211; empty, used so for dynamic method invocation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; list of commands</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.League.run_command">
+<code class="descname">run_command</code><span class="sig-paren">(</span><em>command</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.run_command" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="league.League.status">
+<code class="descname">status</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#league.League.status" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the riot api lol status information and returns which servers are up.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> &#8211; empty, used so for dynamic method invocation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; formatted response to be send to the discord server</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="league.LolGame">
+<em class="property">class </em><code class="descclassname">league.</code><code class="descname">LolGame</code><span class="sig-paren">(</span><em>response</em>, <em>owner_id</em>, <em>owner_name</em>, <em>region</em>, <em>league</em><span class="sig-paren">)</span><a class="headerlink" href="#league.LolGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Helper class for loading detailed information about an active game.</p>
+<blockquote>
+<div>Helper class for loading detailed information about an active game.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>response</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; spectator info of match requested earlier from the riot api</li>
+<li><strong>owner_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; summoner id of the person whom the match information is requested from</li>
+<li><strong>owner_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; summoner name of the person whom the match information is requested from</li>
+<li><strong>region</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; region match information is being requested for</li>
+<li><strong>league</strong> (<a class="reference internal" href="#league.League" title="league.League"><em>League</em></a>) &#8211; league helper class reference</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="league.LolGame.get_champ_by_id">
+<code class="descname">get_champ_by_id</code><span class="sig-paren">(</span><em>champ_id</em><span class="sig-paren">)</span><a class="headerlink" href="#league.LolGame.get_champ_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the champion name from the static riot api server given an id</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>champ_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; champion id</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; name of the champion</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.LolGame.get_formatted_string">
+<code class="descname">get_formatted_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#league.LolGame.get_formatted_string" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Formats all the requested information in a string which will be sent to the discord server.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; formatted response to be send to the discord server</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="league.LolGame.get_ranked_info">
+<code class="descname">get_ranked_info</code><span class="sig-paren">(</span><em>summ_id</em><span class="sig-paren">)</span><a class="headerlink" href="#league.LolGame.get_ranked_info" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Requests the riot api server the tier and division of a given summoner.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>summ_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; summoner id</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str &#8211; formatted to contain the tier and division of the summoner</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="commands">
+<h1>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal"><span class="pre">!help</span></code></p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/lol_help.png"><img alt="_images/lol_help.png" src="_images/lol_help.png" style="width: 690.0px; height: 344.0px;" /></a>
+</div>
+<p><code class="docutils literal"><span class="pre">!lol</span> <span class="pre">help</span></code>:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/lol_help.png"><img alt="_images/lol_help.png" src="_images/lol_help.png" style="width: 690.0px; height: 344.0px;" /></a>
+</div>
+<p><code class="docutils literal"><span class="pre">!lol</span> <span class="pre">status</span></code>:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/lol_status.png"><img alt="_images/lol_status.png" src="_images/lol_status.png" style="width: 306.0px; height: 512.0px;" /></a>
+</div>
+<p><code class="docutils literal"><span class="pre">!lol</span> <span class="pre">match</span></code> <em>region</em> <em>summoner</em>:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/lol_match.png"><img alt="_images/lol_match.png" src="_images/lol_match.png" style="width: 596.0px; height: 397.0px;" /></a>
+</div>
+<p><code class="docutils literal"><span class="pre">!lol</span> <span class="pre">best</span></code> <em>lane</em>:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/best_lane.png"><img alt="_images/best_lane.png" src="_images/best_lane.png" style="width: 394.0px; height: 303.0px;" /></a>
+</div>
+<p><code class="docutils literal"><span class="pre">!lol</span> <span class="pre">counters</span></code> <em>champion</em> <em>role</em>:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/lol_counters.png"><img alt="_images/lol_counters.png" src="_images/lol_counters.png" style="width: 618.0px; height: 547.0px;" /></a>
+</div>
+<p><code class="docutils literal"><span class="pre">!lol</span> <span class="pre">bans</span></code>:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/lol_bans.png"><img alt="_images/lol_bans.png" src="_images/lol_bans.png" style="width: 428.0px; height: 320.0px;" /></a>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div style="position: fixed; left: 10px" class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to GanjaBot&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#module-ganja">GanjaBot</a></li>
+<li><a class="reference internal" href="#module-league">League</a></li>
+<li><a class="reference internal" href="#commands">Commands</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Brent Van Wynsberge.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/index.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

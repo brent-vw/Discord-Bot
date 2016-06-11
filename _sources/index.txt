@@ -1,0 +1,79 @@
+.. GanjaBot documentation master file, created by
+   sphinx-quickstart on Thu Jun  9 19:43:20 2016.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to GanjaBot's documentation!
+====================================
+
+Ganjabot links different api's together and gives you the best experience for your discord server. Users are able to add commands themselves aswell as use the many great commands already included in this bot.
+
+.. toctree::
+   :maxdepth: 2
+
+GanjaBot
+========
+
+.. automodule:: ganja
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+League
+======
+
+.. automodule:: league
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Commands
+========
+``!help``
+
+.. figure:: images/lol_help.*
+   :scale: 100%
+
+``!lol help``:
+
+.. figure:: images/lol_help.*
+   :scale: 100%
+
+
+``!lol status``:
+
+.. figure:: images/lol_status.*
+   :scale: 100%
+
+
+``!lol match`` *region* *summoner*:
+
+.. figure:: images/lol_match.*
+   :scale: 100%
+
+
+``!lol best`` *lane*:
+
+.. figure:: images/best_lane.*
+   :scale: 100% 
+
+
+``!lol counters`` *champion* *role*:
+
+.. figure:: images/lol_counters.*
+   :scale: 100%
+   
+
+``!lol bans``:
+
+.. figure:: images/lol_bans.*
+   :scale: 100%
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
