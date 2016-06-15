@@ -1,6 +1,7 @@
 import urllib
 import json
 import shelve
+import grequests
 import traceback
 from datetime import date, timedelta
 from bans import create_image
@@ -144,18 +145,6 @@ class League:
         response_dict = json.JSONDecoder().decode(response)
         return response_dict
 
-    def get_champions_stats(self, summ_id, region):
-        """
-        Requests the ranked stats with all champions for a given summoner to the riot server.
-      :param summ_id: summoner id
-      :type summ_id: int
-      :param region: region of the summoner
-      :type region: str
-      :returns: dict -- the json response mapped to a dict containing stats for all champions played in ranked S2016
-        """
-        return self.get_response('https://'+region+'.api.pvp.net/api/lol/'+region+'/v1.3/stats/by-summoner/' +
-                                 str(summ_id) + '/ranked?season=SEASON2016&api_key=' + self.riot_token)
-
     def get_bans(self, args):
         """
         Requests the most banned champions from the champion.gg api and reformats it to an unique top 10
@@ -278,16 +267,13 @@ class League:
                          or an error message
         """
         self.get_champions()
-        region = ''
         name = ''
-        for reg in self.regions:
-            if args.replace(reg, '') != args:
-                region = reg
-                name = args.replace(reg, '').strip()
-                break
+        region = args.split(' ')[0].lower()
+        if region not in self.regions:
+            region = ''
         if region == '':
             return '**' + args + '** was not recognized.'
-        name = name.replace(' ', '%20')
+        name = args.replace(region+' ', '').replace(' ', '%20')
         try:
             summid = self.get_response('https://' + region + '.api.pvp.net/api/lol/' + region +
                                        '/v1.4/summoner/by-name/' + name + '?api_key=' + self.riot_token)
@@ -301,9 +287,9 @@ class League:
                 self.platforms[region] + '/' + str(s_id) + '?api_key='+self.riot_token
             match = self.get_response(url)
             game = LolGame(match, str(s_id), name, region, self)
+            return game.get_formatted_string()
         except urllib.error.HTTPError:
             return 'Match for: ' + name.replace('%20', ' ') + ' on ' + region + ' could not be found.'
-        return game.get_formatted_string()
 
     def status(self, args):
         """
@@ -321,10 +307,10 @@ class League:
         return info
 
     def run_command(self, command, args):
-        try:
-            return self.dispatch[command](args)
-        except KeyError:
-            return self.dispatch['help']()
+        # try:
+        return self.dispatch[command](args)
+        # except KeyError:
+        #    return self.dispatch['help']()
 
 
 class LolGame:
@@ -354,45 +340,48 @@ class LolGame:
         self.region = region
         self.league = league
         self.league.get_champions()
-        for participant in self.match['participants']:
-            # Request relevant information for all summoners in the current game
-            summ_id = participant['summonerId']
-            name = participant['summonerName']
-            side = participant['teamId']
-            champ = participant['championId']
-            stats = league.get_champions_stats(summ_id, self.region)
-            champ_stat = list(filter(lambda champion: champion['id'] == champ, stats['champions']))
-            # Look for ranked stats for the champion used in the current game.
-            if not champ_stat:
-                win_rate = 0
-                games = 0
-            else:
-                wins = champ_stat[0]['stats']['totalSessionsWon']
-                losses = champ_stat[0]['stats']['totalSessionsLost']
-                games = wins + losses
-                win_rate = round((wins / games) * 100, 2)
-            rank = self.get_ranked_info(summ_id)
-            entry = {'name': name, 'rank': rank, 'champ': self.get_champ_by_id(champ), 'rate': str(win_rate),
-                     'games': str(games)}
-            if side == 100:
-                self.blue_side.append(entry)
-            else:
-                self.red_side.append(entry)
-            if str(summ_id) == str(owner_id):
+        self.sums = []
+        self.champs = {}
+        self.entries = {}
+        for part in self.match['participants']:
+            name = part['summonerName']
+            side = part['teamId']
+            champ = part['championId']
+            self.sums.append(str(part['summonerId']))
+            self.champs[str(part['championId'])] = str(part['summonerId'])
+            self.entries[str(part['summonerId'])] = {'name': name, 'rank': None, 'champ': None,
+                                                'rate': 0, 'games': 0, 'side': side}
+            if str(part['summonerId']) == str(owner_id):
                 if side == 100:
                     self.owner_side = 'Blue'
                 else:
                     self.owner_side = 'Red'
+        self.get_champs_by_id()
+        self.get_ranked_info()
+        self.get_champions_stats()
+        for entry in self.entries:
+            side = self.entries[entry]['side']
+            if side == 100:
+                self.blue_side.append(self.entries[entry])
+            else:
+                self.red_side.append(self.entries[entry])
 
-    def get_champ_by_id(self, champ_id):
+    def get_champs_by_id(self):
         """
         Requests the champion name from the static riot api server given an id
       :param champ_id: champion id
       :type champ_id: int
       :returns: str -- name of the champion
         """
-        return self.league.get_response('https://global.api.pvp.net/api/lol/static-data/' + self.region +
-                                 '/v1.2/champion/' + str(champ_id) + '?api_key=' + self.league.riot_token)['name']
+        urls = []
+        for champ in self.champs.keys():
+            urls.append('https://global.api.pvp.net/api/lol/static-data/' + self.region +
+                        '/v1.2/champion/' + str(champ) + '?api_key=' + self.league.riot_token)
+        rs = (grequests.get(u) for u in urls)
+        names = [json.loads(response.content.decode('utf-8')) for response in grequests.map(rs)]
+        for name in names:
+            self.entries[str(self.champs[str(name['id'])])]['champ'] = name['name']
+        return True
 
     def get_formatted_string(self):
         """
@@ -404,25 +393,64 @@ class LolGame:
         blue_side = '__Blue side:__\n'
         for pers in self.blue_side:
             blue_side += '**' + pers['name'] + '** - ' + pers['rank'] + ' - **' + pers['champ'] + '**, __' + \
-                         pers['rate'] + '%__ win rate over __' + pers['games'] + 'games__\n'
+                         str(pers['rate']) + '%__ win rate over __' + str(pers['games']) + 'games__\n'
         red_side = '\n__Red side:__'
         for pers in self.red_side:
             red_side += '\n**' + pers['name'] + '** - ' + pers['rank'] + ' - **' + pers['champ'] + '**, __' + \
-                        pers['rate'] + '%__ win rate over __' + pers['games'] + 'games__'
+                        str(pers['rate']) + '%__ win rate over __' + str(pers['games']) + 'games__'
         return line1 + blue_side + red_side
 
-    def get_ranked_info(self, summ_id):
+    def get_ranked_info(self):
         """
         Requests the riot api server the tier and division of a given summoner.
       :param summ_id: summoner id
       :type summ_id: int
       :returns: str -- formatted to contain the tier and division of the summoner
         """
-        leagues = self.league.get_response(
-            'https://'+self.region+'.api.pvp.net/api/lol/'+self.region+'/v2.5/league/by-summoner/' + str(summ_id) +
-            '?api_key=' + self.league.riot_token)
-        sum_div = list(filter(lambda summ: summ['playerOrTeamId'] == str(summ_id),
-                              leagues[str(summ_id)][0]['entries']))[0]
-        division = sum_div['division']
-        tier = leagues[str(summ_id)][0]['tier'].lower().capitalize()
-        return tier + ' ' + division
+        urls = ['https://' + self.region + '.api.pvp.net/api/lol/' + self.region + '/v2.5/league/by-summoner/' +
+                str(self.sums).replace(' ', '').replace(']', '').replace('[', '').replace('\'', '') +
+                '?api_key=' + self.league.riot_token]
+        rs = (grequests.get(u) for u in urls)
+        info = [json.loads(response.content.decode('utf-8')) for response in grequests.map(rs)]
+        for inf in info:
+            for summ_id in inf.keys():
+                leagues = inf[summ_id]
+                sum_div = list(filter(lambda summ: summ['playerOrTeamId'] == str(summ_id),
+                                      leagues[0]['entries']))[0]
+                division = sum_div['division']
+                tier = (leagues[0])['tier'].lower().capitalize()
+                self.entries[str(summ_id)]['rank'] = tier + ' ' + division
+
+    def get_champions_stats(self):
+        """
+        Requests the ranked stats with all champions for a given summoner to the riot server.
+      :param summ_id: summoner id
+      :type summ_id: int
+      :param region: region of the summoner
+      :type region: str
+      :returns: dict -- the json response mapped to a dict containing stats for all champions played in ranked S2016
+        """
+        urls = []
+        for summ in self.sums:
+            urls.append('https://' + self.region +
+                        '.api.pvp.net/api/lol/' + self.region +
+                        '/v1.3/stats/by-summoner/' + str(summ) +
+                        '/ranked?season=SEASON2016&api_key=' + self.league.riot_token)
+        rs = (grequests.get(u) for u in urls)
+        info = [json.loads(response.content.decode('utf-8')) for response in grequests.map(rs)]
+        for stats in info:
+            summid = str(stats['summonerId'])
+            champ = list(self.champs.keys())[list(self.champs.values()).index(summid)]
+            champ_stat = list(filter(lambda champion: champion['id'] == champ, stats['champions']))
+            # Look for ranked stats for the champion used in the current game.
+            if not champ_stat:
+                win_rate = 0
+                games = 0
+            else:
+                wins = champ_stat[0]['stats']['totalSessionsWon']
+                losses = champ_stat[0]['stats']['totalSessionsLost']
+                games = wins + losses
+                win_rate = round((wins / games) * 100, 2)
+            self.entries[summid]['rate'] = win_rate
+            self.entries[summid]['games'] = games
+        return True
