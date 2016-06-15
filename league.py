@@ -1,7 +1,7 @@
 import urllib
 import json
 import shelve
-import time
+import traceback
 from datetime import date, timedelta
 from bans import create_image
 __docformat__ = 'reStructuredText'
@@ -22,6 +22,7 @@ class League:
             data = json.load(f)
             self.regions = data['regions']
             self.positions = data['positions']
+            self.platforms = data['platforms']
         self.header = header
         self.riot_token = riot_token
         self.open_token = open_token
@@ -295,9 +296,10 @@ class League:
         for x in summid:
             s_id = summid[x]['id']
         try:
-            match = self.get_response('https://' + region +
-                                      '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' +
-                                      region.upper() + '1/' + str(s_id) + '?api_key=' + self.riot_token)
+            url = 'https://' + \
+                  region + '.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/' + \
+                self.platforms[region] + '/' + str(s_id) + '?api_key='+self.riot_token
+            match = self.get_response(url)
             game = LolGame(match, str(s_id), name, region, self)
         except urllib.error.HTTPError:
             return 'Match for: ' + name.replace('%20', ' ') + ' on ' + region + ' could not be found.'
@@ -381,7 +383,6 @@ class LolGame:
                     self.owner_side = 'Blue'
                 else:
                     self.owner_side = 'Red'
-            time.sleep(2)
 
     def get_champ_by_id(self, champ_id):
         """

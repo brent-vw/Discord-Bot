@@ -1,5 +1,11 @@
 {
 	"regions": ["euw", "na", "br", "eune", "kr", "lan", "las", "oce", "ru", "tr"],
+	"platforms": {
+		"euw": "EUW1",
+		"eune": "EUN1",
+		"na": "NA1",
+		"br": "BR1"
+	},
 	"positions": {
 		"top": "Top",
 		"mid": "Middle",
