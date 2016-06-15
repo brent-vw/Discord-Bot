@@ -441,7 +441,7 @@ class LolGame:
         for stats in info:
             summid = str(stats['summonerId'])
             champ = list(self.champs.keys())[list(self.champs.values()).index(summid)]
-            champ_stat = list(filter(lambda champion: champion['id'] == champ, stats['champions']))
+            champ_stat = list(filter(lambda champion: str(champion['id']) == str(champ), stats['champions']))
             # Look for ranked stats for the champion used in the current game.
             if not champ_stat:
                 win_rate = 0
