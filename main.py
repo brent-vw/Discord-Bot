@@ -4,7 +4,7 @@ Will accept command line arguments in a future release.
 """
 import ganja
 
-client = ganja.GanjaClient('.apikeys')
+client = ganja.GanjaClient('.apikeys', True)
 def close():
     yield from client.close()
 close()

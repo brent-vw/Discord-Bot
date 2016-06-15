@@ -348,7 +348,10 @@ class LolGame:
             side = part['teamId']
             champ = part['championId']
             self.sums.append(str(part['summonerId']))
-            self.champs[str(part['championId'])] = str(part['summonerId'])
+            try:
+                self.champs[str(part['championId'])].append(str(part['summonerId']))
+            except KeyError:
+                self.champs[str(part['championId'])] = [str(part['summonerId'])]
             self.entries[str(part['summonerId'])] = {'name': name, 'rank': None, 'champ': None,
                                                 'rate': 0, 'games': 0, 'side': side}
             if str(part['summonerId']) == str(owner_id):
@@ -380,7 +383,8 @@ class LolGame:
         rs = (grequests.get(u) for u in urls)
         names = [json.loads(response.content.decode('utf-8')) for response in grequests.map(rs)]
         for name in names:
-            self.entries[str(self.champs[str(name['id'])])]['champ'] = name['name']
+            for summ in self.champs[str(name['id'])]:
+                self.entries[str(summ)]['champ'] = name['name']
         return True
 
     def get_formatted_string(self):
@@ -392,11 +396,13 @@ class LolGame:
                 '__ side. \n\n'
         blue_side = '__Blue side:__\n'
         for pers in self.blue_side:
-            blue_side += '**' + pers['name'] + '** - ' + pers['rank'] + ' - **' + pers['champ'] + '**, __' + \
+            rank = pers['rank'] if pers['rank'] else 'Unranked'
+            blue_side += '**' + pers['name'] + '** - ' + rank + ' - **' + pers['champ'] + '**, __' + \
                          str(pers['rate']) + '%__ win rate over __' + str(pers['games']) + 'games__\n'
         red_side = '\n__Red side:__'
         for pers in self.red_side:
-            red_side += '\n**' + pers['name'] + '** - ' + pers['rank'] + ' - **' + pers['champ'] + '**, __' + \
+            rank = pers['rank'] if pers['rank'] else 'Unranked'
+            red_side += '\n**' + pers['name'] + '** - ' + rank + ' - **' + pers['champ'] + '**, __' + \
                         str(pers['rate']) + '%__ win rate over __' + str(pers['games']) + 'games__'
         return line1 + blue_side + red_side
 
@@ -439,9 +445,19 @@ class LolGame:
         rs = (grequests.get(u) for u in urls)
         info = [json.loads(response.content.decode('utf-8')) for response in grequests.map(rs)]
         for stats in info:
-            summid = str(stats['summonerId'])
-            champ = list(self.champs.keys())[list(self.champs.values()).index(summid)]
-            champ_stat = list(filter(lambda champion: str(champion['id']) == str(champ), stats['champions']))
+            try:
+                x = stats['status']
+                champ_stat = None
+            except KeyError:
+                summid = str(stats['summonerId'])
+                champ = None
+                for cham in self.champs.keys():
+                    if champ:
+                        break
+                    for x in self.champs[cham]:
+                        if x == summid:
+                            champ = cham
+                champ_stat = list(filter(lambda champion: str(champion['id']) == str(champ), stats['champions']))
             # Look for ranked stats for the champion used in the current game.
             if not champ_stat:
                 win_rate = 0
