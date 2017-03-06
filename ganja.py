@@ -14,6 +14,7 @@ from helpers import youtube_url_validation
 from helpers import get_vid_title
 from queue import Queue
 from queue import Empty
+
 __docformat__ = 'reStructuredText'
 
 
@@ -21,6 +22,7 @@ class GanjaClient(discord.Client):
     """
 Extends the Client class in discord.py.
     """
+
     def __init__(self, token_file, dev=False):
         """
         Not only does it represent a client connection to the discord server, but it also initializes the used api tokens
@@ -210,13 +212,14 @@ Extends the Client class in discord.py.
         if message.content == 'http://i.imgur.com/IZAl8yz.png':
             yield from self.send_file(message.channel, 'http://i.imgur.com/IZAl8yz.png')
 
+    """
     @asyncio.coroutine
     def on_message(self, message):
-        """
+
         Determines whether the command is a known message and handles + responds to it if it is.
       :param message: the message sent by the discord users on the
       :type message: discord.Message
-        """
+
         # if str(message) == 'INTERNAL':
         #     mess = '!dj next'
         # else:
@@ -393,7 +396,7 @@ Extends the Client class in discord.py.
             # Handles a user-defined command.
             response = self.get_command(mess)
             yield from self.send_message(message.channel, response)
-        elif mess.startswith('!dj'):
+        elif mess.startswith('!chill'):
             # Music bot. WIP: autoplay doesn't work yet.
             mess = mess.replace('!dj ', '')
             if mess.startswith('join'):
@@ -452,6 +455,30 @@ Extends the Client class in discord.py.
             elif mess.startswith('voldown'):
                 if self.player:
                     self.player.volume -= 0.01
+    """
+
+    @asyncio.coroutine
+    def on_voice_state_update(self, before, after):
+        vc = after.voice
+        channel = vc.voice_channel
+        if channel.id == '218477677768736768' and not self.playing:
+            self.voice = yield from self.join_voice_channel(channel)
+            url = "https://www.youtube.com/watch?v=QX4j_zHAlw8"
+            search = re.search('([^&]*)&.*$', url)
+            url = search.group(1)
+            match = youtube_url_validation(url)
+            if match:
+                self.queue.put(url)
+                title = get_vid_title(url)
+                self.queue_name.put(title)
+        if self.voice:
+            if self.player:
+                if self.player.is_playing():
+                    self.player.stop()
+        self.voice = yield from self.join_voice_channel(channel)
+        self.player = yield from self.voice.create_ytdl_player(self.queue.get())
+        self.player.volume = 0.05
+        self.player.start()
 
 
 class PlayThread(threading.Thread):
