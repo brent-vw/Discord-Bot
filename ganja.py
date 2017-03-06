@@ -66,6 +66,7 @@ Extends the Client class in discord.py.
         """
         super(GanjaClient, self).run(self.token)
         td = PlayThread(self)
+        self.opus.load_opus()
         td.start()
 
     def get_from_shelve(self, name, item):
