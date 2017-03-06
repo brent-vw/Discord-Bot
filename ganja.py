@@ -462,7 +462,7 @@ Extends the Client class in discord.py.
         #vc = after.voice
         channel = after.voice_channel
         if channel:
-            if channel.id == '218477677768736768' and not self.playing:
+            if channel.id == '218477677768736768':
                 self.voice = yield from self.join_voice_channel(channel)
                 url = "https://www.youtube.com/watch?v=QX4j_zHAlw8"
                 search = re.search('([^&]*)&.*$', url)
