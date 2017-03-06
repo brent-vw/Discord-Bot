@@ -66,7 +66,6 @@ Extends the Client class in discord.py.
         """
         super(GanjaClient, self).run(self.token)
         td = PlayThread(self)
-        self.opus.load_opus()
         td.start()
 
     def get_from_shelve(self, name, item):
@@ -478,6 +477,7 @@ Extends the Client class in discord.py.
                     if self.player.is_playing():
                         self.player.stop()
             self.voice = yield from self.join_voice_channel(channel)
+            self.voic.opus.load_opus()
             self.player = yield from self.voice.create_ytdl_player(self.queue.get())
             self.player.volume = 0.05
             self.player.start()
