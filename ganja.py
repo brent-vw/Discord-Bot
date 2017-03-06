@@ -459,8 +459,8 @@ Extends the Client class in discord.py.
 
     @asyncio.coroutine
     def on_voice_state_update(self, before, after):
-        vc = after.voice
-        channel = vc.voice_channel
+        #vc = after.voice
+        channel = after.voice_channel
         if channel.id == '218477677768736768' and not self.playing:
             self.voice = yield from self.join_voice_channel(channel)
             url = "https://www.youtube.com/watch?v=QX4j_zHAlw8"
