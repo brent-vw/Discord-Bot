@@ -461,24 +461,25 @@ Extends the Client class in discord.py.
     def on_voice_state_update(self, before, after):
         #vc = after.voice
         channel = after.voice_channel
-        if channel.id == '218477677768736768' and not self.playing:
+        if channel:
+            if channel.id == '218477677768736768' and not self.playing:
+                self.voice = yield from self.join_voice_channel(channel)
+                url = "https://www.youtube.com/watch?v=QX4j_zHAlw8"
+                search = re.search('([^&]*)&.*$', url)
+                url = search.group(1)
+                match = youtube_url_validation(url)
+                if match:
+                    self.queue.put(url)
+                    title = get_vid_title(url)
+                    self.queue_name.put(title)
+            if self.voice:
+                if self.player:
+                    if self.player.is_playing():
+                        self.player.stop()
             self.voice = yield from self.join_voice_channel(channel)
-            url = "https://www.youtube.com/watch?v=QX4j_zHAlw8"
-            search = re.search('([^&]*)&.*$', url)
-            url = search.group(1)
-            match = youtube_url_validation(url)
-            if match:
-                self.queue.put(url)
-                title = get_vid_title(url)
-                self.queue_name.put(title)
-        if self.voice:
-            if self.player:
-                if self.player.is_playing():
-                    self.player.stop()
-        self.voice = yield from self.join_voice_channel(channel)
-        self.player = yield from self.voice.create_ytdl_player(self.queue.get())
-        self.player.volume = 0.05
-        self.player.start()
+            self.player = yield from self.voice.create_ytdl_player(self.queue.get())
+            self.player.volume = 0.05
+            self.player.start()
 
 
 class PlayThread(threading.Thread):
