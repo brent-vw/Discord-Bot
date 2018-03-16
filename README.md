@@ -4,6 +4,11 @@ Keeps feeling as attacked as it used to.
 Welcome to GanjaBot-V2! 
 A discord bot using different api's and the Discord.py api wrapper to add loads of functionalities to your discord server.
 
+# Why Ganja?
+
+Laganja estranja is a character in rupaul's drag race who feels attacked all of the time. This bot can relate since has had some issues in the past.
+
+![I feel very attacked!](https://media.giphy.com/media/CIBBy09KxZAw8/giphy.gif)
 
 # Documentation
 
@@ -21,12 +26,14 @@ The invite link to add GanjaBot to your server will be released later!
 
 If you don't like the commands or want to add any, all you have to do is edit the code and make a json file with following api keys called ".apikeys":
 
-{<br />
+```json
+{
   "token": "your discord bot token", <br />
   "dev_token":"optional a discord bot dev token",<br />
   "wolfram_token":"your wolfram alpha token",<br />
   "league_token":"your league token for realtime game info",<br />
   "open_league_token":"your champion.gg token for statistic info"<br />
-}<br />
+}
+```
 
 Then you can just run "main.py" and invite the bot to your server.
