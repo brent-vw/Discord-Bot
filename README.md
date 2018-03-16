@@ -28,11 +28,11 @@ If you don't like the commands or want to add any, all you have to do is edit th
 
 ```json
 {
-  "token": "your discord bot token", <br />
-  "dev_token":"optional a discord bot dev token",<br />
-  "wolfram_token":"your wolfram alpha token",<br />
-  "league_token":"your league token for realtime game info",<br />
-  "open_league_token":"your champion.gg token for statistic info"<br />
+  "token": "your discord bot token",
+  "dev_token":"optional a discord bot dev token",
+  "wolfram_token":"your wolfram alpha token",
+  "league_token":"your league token for realtime game info",
+  "open_league_token":"your champion.gg token for statistic info"
 }
 ```
 
