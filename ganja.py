@@ -212,13 +212,13 @@ Extends the Client class in discord.py.
         if message.content == 'http://i.imgur.com/IZAl8yz.png':
             yield from self.send_file(message.channel, 'http://i.imgur.com/IZAl8yz.png')
 
-    """
     @asyncio.coroutine
     def on_message(self, message):
-
+        """
         Determines whether the command is a known message and handles + responds to it if it is.
       :param message: the message sent by the discord users on the
       :type message: discord.Message
+        """
 
         # if str(message) == 'INTERNAL':
         #     mess = '!dj next'
@@ -455,7 +455,6 @@ Extends the Client class in discord.py.
             elif mess.startswith('voldown'):
                 if self.player:
                     self.player.volume -= 0.01
-    """
 
     @asyncio.coroutine
     def on_voice_state_update(self, before, after):
