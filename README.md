@@ -12,11 +12,11 @@ Laganja estranja is a character in rupaul's drag race who feels attacked all of 
 
 # Documentation
 
-Documentation can be found [here](https://bvwman.github.io/GanjaBot-V2/).
+Documentation can be found [here](https://bvwman.github.io/Discord-Bot/).
 
 # Examples
 
-Examples can be found in the documentation [over here](https://bvwman.github.io/GanjaBot-V2/#commands).
+Examples can be found in the documentation [over here](https://bvwman.github.io/Discord-Bot/#commands).
 
 # Adding ganja
 
